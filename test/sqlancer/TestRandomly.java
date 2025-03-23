@@ -88,33 +88,44 @@ public class TestRandomly {
         assertTrue(encounteredSpace, "Space was not encountered");
     }
 
-    @Test // TODO: also generate and check for NaN
+    @Test
     public void testDouble() {
         Randomly r = new Randomly();
         boolean encounteredZero = false;
         boolean encounteredPositive = false;
         boolean encounteredNegative = false;
         boolean encounteredInfinity = false;
+        boolean encounteredNaN = false;
         int i = 0;
+        final int MAX_ATTEMPTS = 10000; // Safety limit
+        
         do {
             double doubleVal = r.getDouble();
             if (doubleVal == 0) {
                 encounteredZero = true;
             } else if (Double.isInfinite(doubleVal)) {
                 encounteredInfinity = true;
+            } else if (Double.isNaN(doubleVal)) {
+                encounteredNaN = true;
             } else if (doubleVal > 0) {
                 encounteredPositive = true;
             } else if (doubleVal < 0) {
                 encounteredNegative = true;
-            } else {
-                fail(String.valueOf(doubleVal));
             }
-        } while (!encounteredZero || !encounteredPositive || !encounteredNegative || !encounteredInfinity
-                || i++ < NR_MIN_RUNS);
+            i++;
+        } while ((!encounteredZero || !encounteredPositive || !encounteredNegative || 
+                !encounteredInfinity || !encounteredNaN || i < NR_MIN_RUNS) && 
+                i < MAX_ATTEMPTS);
+
         assertTrue(encounteredZero, "Zero was not encountered");
         assertTrue(encounteredPositive, "Positive was not encountered");
         assertTrue(encounteredNegative, "Negative was not encountered");
         assertTrue(encounteredInfinity, "Infinity was not encountered");
+        assertTrue(encounteredNaN, "NaN was not encountered");
+        
+        if (i >= MAX_ATTEMPTS) {
+            fail("Test exceeded maximum attempts - getDouble() might not produce all required values");
+        }
     }
 
     @Test
